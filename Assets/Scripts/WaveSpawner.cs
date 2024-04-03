@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,14 +28,16 @@ public class WaveSpawner : MonoBehaviour
             StartCoroutine(SpawnWave());
             countdown = nextWave;
         }else{
-            waveCountDownText.text = $"Time: {countdown.ToString("0")}";
+            countdown = Mathf.Clamp(countdown, 0f, Mathf.Infinity);
             countdown -= Time.deltaTime;
+            waveCountDownText.text = string.Format("{0:00.00}", countdown);
         }
     }
 
     IEnumerator SpawnWave()
     {
         waveNumber++;
+        PlayerStats.Waves++;
         waveText.text = $"Wave: {waveNumber.ToString("00")}";
         for (int i = 0; i < waveNumber; i++)
         {

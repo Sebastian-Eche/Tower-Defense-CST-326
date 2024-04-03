@@ -4,20 +4,45 @@ using UnityEngine;
 
 public class BuildManager : MonoBehaviour
 {
+    public GameObject buildEffect;
     public static BuildManager instance;
     void Awake()
     {
         instance = this;
     }
-    public GameObject turretPrefab;
-    void Start()
-    {
-        turretSelected = turretPrefab;
-    }
-    private GameObject turretSelected;
+    private TurretBlueprint turretSelected;
+    private Node nodeSelected;
+    public NodeUI nodeUI;
 
-    public GameObject GetTurretToBuild()
+    public bool CanBuild {get {return turretSelected != null;}}
+
+    public bool HasMoney {get {return PlayerStats.Money >= turretSelected.cost;}}
+
+    public void SelectTurretToBuild(TurretBlueprint turret)
     {
+        turretSelected = turret;
+        DeselectNode();
+    }
+
+    public void SelectNode(Node node)
+    {
+        if(node.Equals(nodeSelected))
+        {
+            DeselectNode();
+            return;
+        }
+        nodeSelected = node;
+
+        turretSelected = null;
+        nodeUI.SetSelected(node);
+    }
+    public void DeselectNode()
+    {
+        nodeSelected = null;
+        nodeUI.Hide();
+    }
+
+    public TurretBlueprint GetTurretBlueprint(){
         return turretSelected;
-    } 
+    }
 }

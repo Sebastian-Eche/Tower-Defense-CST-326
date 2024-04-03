@@ -1,22 +1,35 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Turret : MonoBehaviour
 {
-    [Header("Attributes")]
+    private Transform target;
+    private Enemy targetEnemy;
+
+    [Header("General Attributes")]
     public float range = 15f;
     public float turnSpeed = 10f;
+
+    [Header("User Bullets (default)")]
+    public GameObject bulletPrefab;
     public float fireRate = 1f;
+    private float fireCountdown = 0f;
+
+    [Header("Use Laser")]
+    public bool useLaser = false;
+    public int damageOverTime = 30;
+    public LineRenderer lineRenderer;
+    public ParticleSystem laserImpactEffect;
+    public Light impactLight;
+    public float slowPercent = 0.3f;
 
     [Header("Unity Setup Fields")]
     public string enemyTag = "Enemy";
     public Transform partToRotate;
-    public GameObject bulletPrefab;
     public Transform spawnBullet;
-    private Transform target;
-    private float fireCountdown = 0f;
 
     // Start is called before the first frame update
     void Start()
@@ -42,8 +55,10 @@ public class Turret : MonoBehaviour
         if(nearestEnemy != null && shortestDistance <= range)
         {
             target = nearestEnemy.transform;
+            targetEnemy = nearestEnemy.GetComponent<Enemy>();
         }else{
             target = null;
+            targetEnemy = null;
         }
     }
 
@@ -51,22 +66,33 @@ public class Turret : MonoBehaviour
     void Update()
     {
         if(target == null){
+            if(useLaser){
+                if(lineRenderer.enabled)
+                {
+                    lineRenderer.enabled = false;
+                    laserImpactEffect.Stop();
+                    impactLight.enabled = false;
+                }
+            }
             return;
         }
 
-        //HOW TO MAKE TURRET FOLLOW TARGET (TARGET LOCK ON)
-        Vector3 dir = target.position - transform.position;
-        Quaternion lookRotation = Quaternion.LookRotation(dir);
-        Vector3 finalRotation = Quaternion.Lerp(partToRotate.rotation, lookRotation, Time.deltaTime * turnSpeed).eulerAngles;
-        partToRotate.rotation = Quaternion.Euler(0f, finalRotation.y, 0f);
+        LockOnTarget();
 
-        if(fireCountdown <= 0)
+        if(useLaser)
         {
-            Shoot();
-            fireCountdown = 1f / fireRate;
-        }
+            Laser();
+        }else
+        {
+            if(fireCountdown <= 0)
+            {
+                Shoot();
+                fireCountdown = 1f / fireRate;
+            }
 
-        fireCountdown -= Time.deltaTime;
+            fireCountdown -= Time.deltaTime;
+
+        }
     }
 
     void Shoot()
@@ -85,4 +111,35 @@ public class Turret : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, range);   
     }
+
+    void LockOnTarget()
+    {
+        //HOW TO MAKE TURRET FOLLOW TARGET (TARGET LOCK ON)
+        Vector3 dir = target.position - transform.position;
+        Quaternion lookRotation = Quaternion.LookRotation(dir);
+        Vector3 finalRotation = Quaternion.Lerp(partToRotate.rotation, lookRotation, Time.deltaTime * turnSpeed).eulerAngles;
+        partToRotate.rotation = Quaternion.Euler(0f, finalRotation.y, 0f);
+    }
+
+    void Laser()
+    {
+        targetEnemy.TakeDamage(damageOverTime * Time.deltaTime);
+        targetEnemy.Slow(slowPercent);
+        if(!lineRenderer.enabled)
+        {
+            lineRenderer.enabled = true;
+            laserImpactEffect.Play();
+            impactLight.enabled = true;
+        }
+        lineRenderer.SetPosition(0, spawnBullet.position);
+        lineRenderer.SetPosition(1, target.position);
+
+        Vector3 dir = spawnBullet.position - target.position;
+
+        laserImpactEffect.transform.position = target.position + dir.normalized;
+
+        laserImpactEffect.transform.rotation = Quaternion.LookRotation(dir);
+    }
+
+    
 }
