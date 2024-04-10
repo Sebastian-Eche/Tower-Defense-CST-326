@@ -10,7 +10,6 @@ public class CameraController : MonoBehaviour
     public float scrollSpeed = 5f;
     public float minY = 10f;
     public float maxY = 80f;
-    private bool pan = true;
     // Update is called once per frame
     void Update()
     {
@@ -19,16 +18,7 @@ public class CameraController : MonoBehaviour
             enabled = false;
             return;
         }
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            pan = !pan;
-        }
-
-        if(!pan)
-        {
-            return;
-        }
-
+      
         if(Input.GetKey(KeyCode.W) || Input.mousePosition.y >= Screen.height - panBorderThickness)
         {
             transform.Translate(Vector3.forward * panSpeed * Time.deltaTime, Space.World);

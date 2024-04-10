@@ -6,6 +6,9 @@ public class GameManager : MonoBehaviour
 {
     public static bool gameover;
     public GameObject gameOverUI;
+    public SceneFader sceneFader;
+    public GameObject levelCompleteUI;
+    public GameObject virtualCamera;
     void Start()
     {
         gameover = false;
@@ -25,7 +28,21 @@ public class GameManager : MonoBehaviour
 
     private void EndGame()
     {
+        virtualCamera.SetActive(true);
         gameover = true;
+        gameOverUI.SetActive(true);
+        // StartCoroutine(DelayActive());
+    }
+
+    public void WinLevel()
+    {
+        gameover = true;
+        levelCompleteUI.SetActive(true);
+    }
+
+    IEnumerator DelayActive()
+    {
+        yield return new WaitForSeconds(3);
         gameOverUI.SetActive(true);
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,9 @@ public class Bullet : MonoBehaviour
     public float explosionRadius = 0f;
     public int damage = 50;
     public GameObject impactEffect;
+    public GameObject virtualCamera;
     private Transform target;
+
     public void Seek(Transform _target)
     {
         target = _target;
@@ -56,8 +59,8 @@ public class Bullet : MonoBehaviour
 
     void Explode()
     {
+        CameraShake.instance.ShakeCamera();
         Collider[] hitObjects = Physics.OverlapSphere(transform.position, explosionRadius);
-
         foreach (Collider collider in hitObjects)
         {
             if(collider.tag == "Enemy")
@@ -83,4 +86,5 @@ public class Bullet : MonoBehaviour
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
+
 }

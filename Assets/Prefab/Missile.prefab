@@ -49,6 +49,7 @@ MonoBehaviour:
   explosionRadius: 5
   damage: 50
   impactEffect: {fileID: 550284460705559044, guid: b946d8014c2695046852e9738b4ba285, type: 3}
+  virtualCamera: {fileID: 9179589325603903141, guid: 6e51c72f4770aca4cade940aaa683499, type: 3}
 --- !u!1 &7637868523083912075
 GameObject:
   m_ObjectHideFlags: 0
